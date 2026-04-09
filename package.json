@@ -1,0 +1,13 @@
+{
+  "name": "purrfocus",
+  "version": "1.0.0",
+  "description": "PurrFocus - A kawaii productivity timer",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^29.0.0"
+  }
+}

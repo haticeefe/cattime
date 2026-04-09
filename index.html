@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PurrFocus Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "surface": "#fef4f5",
+          "surface-bright": "#fef4f5",
+          "on-secondary-fixed-variant": "#714e58",
+          "error-container": "#fb5151",
+          "on-primary-fixed-variant": "#6b1c2f",
+          "primary-fixed-dim": "#ee8396",
+          "on-surface-variant": "#605a5b",
+          "surface-tint": "#973e50",
+          "primary": "#973e50",
+          "on-background": "#322d2e",
+          "secondary": "#75525b",
+          "on-secondary-fixed": "#52333c",
+          "background": "#fef4f5",
+          "inverse-surface": "#110d0e",
+          "on-tertiary": "#f8efff",
+          "primary-dim": "#883245",
+          "tertiary": "#65518a",
+          "secondary-container": "#ffd1dc",
+          "on-primary": "#ffeff0",
+          "tertiary-dim": "#59467d",
+          "surface-container": "#f0e6e7",
+          "surface-container-lowest": "#ffffff",
+          "outline-variant": "#b3abac",
+          "on-secondary": "#ffeff1",
+          "on-error": "#ffefee",
+          "primary-fixed": "#fe90a3",
+          "error": "#b31b25",
+          "secondary-fixed": "#ffd1dc",
+          "outline": "#7c7576",
+          "tertiary-fixed-dim": "#c8b1f0",
+          "primary-container": "#fe90a3",
+          "error-dim": "#9f0519",
+          "on-secondary-container": "#66454e",
+          "inverse-primary": "#fe90a3",
+          "on-primary-container": "#5f1227",
+          "on-surface": "#322d2e",
+          "on-primary-fixed": "#390011",
+          "tertiary-fixed": "#d6beff",
+          "on-tertiary-container": "#4b386e",
+          "on-tertiary-fixed-variant": "#544178",
+          "inverse-on-surface": "#a39b9c",
+          "secondary-dim": "#684650",
+          "surface-variant": "#e5dadc",
+          "surface-container-highest": "#e5dadc",
+          "tertiary-container": "#d6beff",
+          "secondary-fixed-dim": "#f0c3ce",
+          "surface-container-high": "#ebe0e1",
+          "on-error-container": "#570008",
+          "surface-container-low": "#f9eeef",
+          "on-tertiary-fixed": "#362459",
+          "surface-dim": "#ddd2d3"
+        },
+        borderRadius: {
+          "DEFAULT": "1rem",
+          "lg": "2rem",
+          "xl": "3rem",
+          "full": "9999px"
+        },
+        fontFamily: {
+          "headline": ["Plus Jakarta Sans"],
+          "body": ["Be Vietnam Pro"],
+          "label": ["Plus Jakarta Sans"]
+        }
+      },
+    },
+  }
+</script>
+<style>
+  * { -webkit-user-select: none; user-select: none; }
+  input, textarea { -webkit-user-select: text; user-select: text; }
+
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+
+  /* Drag region for frameless window */
+  .drag-region { -webkit-app-region: drag; }
+  .no-drag { -webkit-app-region: no-drag; }
+
+  /* Paw checkbox */
+  .paw-checkbox:checked + label .paw-icon {
+    font-variation-settings: 'FILL' 1;
+    color: #973e50;
+  }
+  .paw-checkbox:checked + label {
+    background-color: rgba(254, 144, 163, 0.15);
+    border-color: #973e50;
+  }
+
+  /* Cat ear decoration on timer */
+  .timer-container::before,
+  .timer-container::after {
+    content: '';
+    position: absolute;
+    top: -14px;
+    width: 44px;
+    height: 32px;
+    background-color: #ffffff;
+    border-radius: 1rem 1rem 0 0;
+    box-shadow: 0 -2px 8px rgba(151,62,80,0.08);
+  }
+  .timer-container::before { left: 18%; transform: rotate(-15deg); }
+  .timer-container::after  { right: 18%; transform: rotate(15deg); }
+
+  /* Custom scrollbar */
+  .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: #f0c3ce; border-radius: 99px; }
+
+  /* Timer pulse animation when running */
+  @keyframes timerPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+  .timer-running { animation: timerPulse 2s ease-in-out infinite; }
+
+  /* Task item slide-in */
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .task-slide-in { animation: slideIn 0.25s ease-out forwards; }
+
+  /* Confetti dot */
+  @keyframes confettiFall {
+    0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(60px) rotate(360deg); opacity: 0; }
+  }
+  .confetti-dot {
+    position: fixed;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: confettiFall 0.8s ease-out forwards;
+    z-index: 9999;
+  }
+
+  /* Break mode color shift */
+  .break-mode .bg-gradient-to-br { background: linear-gradient(to bottom right, #65518a, #c8b1f0) !important; }
+  .break-mode .text-primary { color: #65518a !important; }
+
+  /* Sidebar active nav item hover effect */
+  nav a { transition: all 0.2s cubic-bezier(0.4,0,0.2,1); }
+
+  /* Floating paw bounce */
+  @keyframes pawFloat {
+    0%, 100% { transform: rotate(12deg) translateY(0px); }
+    50% { transform: rotate(12deg) translateY(-8px); }
+  }
+  .paw-float { animation: pawFloat 3s ease-in-out infinite; }
+
+  /* Mode badge pulse */
+  @keyframes badgePulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(151,62,80,0.4); }
+    70% { box-shadow: 0 0 0 6px rgba(151,62,80,0); }
+  }
+  .mode-badge-pulse { animation: badgePulse 2s infinite; }
+
+  /* Completion ring animation */
+  @keyframes ringComplete {
+    0%   { stroke-dashoffset: 0; }
+    100% { stroke-dashoffset: -816; }
+  }
+  @keyframes quoteFadeIn {
+    from { opacity:0; transform:translateY(8px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  .quote-fade { animation: quoteFadeIn 0.6s ease-out forwards; }
+  .cal-day { width:36px; height:36px; display:flex; align-items:center; justify-content:center;
+    border-radius:50%; font-size:0.82rem; cursor:pointer; transition:all 0.15s; font-weight:500; position:relative; }
+  .cal-day:hover { background:#ffd1dc; color:#973e50; }
+  .cal-day.today { background:#973e50; color:#ffeff0; font-weight:700; }
+  .cal-day.other-month { opacity:0.3; }
+  .cal-day.has-event::after { content:''; display:block; width:4px; height:4px;
+    background:#fe90a3; border-radius:50%; position:absolute; bottom:2px; left:50%; transform:translateX(-50%); }
+  .cal-day.selected-day { outline: 2px solid #fe90a3; outline-offset:1px; }
+  .page-panel { display:none; }
+  .page-panel.active { display:flex; }
+</style>
+</head>
+<body class="bg-surface text-on-surface font-body min-h-screen flex overflow-hidden">
+
+<!-- ═══════════════════════════════════════════ SIDEBAR ═══════════════════════════════════════════ -->
+<aside class="h-screen w-72 rounded-r-[3rem] bg-[#f9eeef] flex flex-col py-10 gap-2 overflow-y-auto shadow-[4px_0_40px_rgba(151,62,80,0.06)] shrink-0">
+  <!-- Profile -->
+  <div class="px-10 mb-8 flex items-center gap-4">
+    <div class="relative w-12 h-12 rounded-full overflow-hidden border-2 border-primary-fixed shadow-md">
+      <img alt="Kawaii cat avatar" class="w-full h-full object-cover"
+        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGTPvO28pkl1uzJ7EYvf6L3-jQrjDJV7-XCOfLd6r2oCt-nRsKLiuH3TQv1yI_aW1t6-SMv1y1oCVDwPgodJkF5N2iB_qpaItn1TdCm2Fmn6hnVzc7QM_PbybZORI5OEoQB2i6avV-Kpt9n7r8K1xfmV5JDxZBLxffnJ544U7jMr44yFdsYwOuPdsPVxtujVAWepwcnvK9psrX9m508t_LvR6IZwgZeTV616rKRYGCPKonVbZ_36WA_-lk9n4YvvqOKyAiiVPyMOTc"/>
+    </div>
+    <div>
+      <h2 class="font-headline font-bold text-primary text-lg leading-tight">Sweet Pea</h2>
+      <p class="text-xs font-label tracking-wider opacity-60 uppercase">Productivity Kitten</p>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <nav class="flex flex-col gap-1">
+    <a id="nav-dashboard" class="bg-[#f0e6e7] text-[#973e50] font-semibold rounded-full mx-4 px-6 py-3 flex items-center gap-3 cursor-pointer translate-x-1 no-drag" href="#">
+      <span class="material-symbols-outlined">dashboard</span>
+      <span class="font-headline text-base">Dashboard</span>
+    </a>
+    <a id="nav-calendar" class="text-[#322d2e] opacity-70 mx-4 px-6 py-3 flex items-center gap-3 hover:bg-[#f0e6e7] rounded-full cursor-pointer no-drag" href="#">
+      <span class="material-symbols-outlined">calendar_today</span>
+      <span class="font-headline text-base">Calendar</span>
+    </a>
+    <a id="nav-playtime" class="text-[#322d2e] opacity-70 mx-4 px-6 py-3 flex items-center gap-3 hover:bg-[#f0e6e7] rounded-full cursor-pointer no-drag" href="#">
+      <span class="material-symbols-outlined">pets</span>
+      <span class="font-headline text-base">Playtime</span>
+    </a>
+    <a id="nav-settings" class="text-[#322d2e] opacity-70 mx-4 px-6 py-3 flex items-center gap-3 hover:bg-[#f0e6e7] rounded-full cursor-pointer no-drag" href="#">
+      <span class="material-symbols-outlined">settings</span>
+      <span class="font-headline text-base">Settings</span>
+    </a>
+    <a id="nav-profile" class="text-[#322d2e] opacity-70 mx-4 px-6 py-3 flex items-center gap-3 hover:bg-[#f0e6e7] rounded-full cursor-pointer no-drag" href="#">
+      <span class="material-symbols-outlined">person</span>
+      <span class="font-headline text-base">Profile</span>
+    </a>
+  </nav>
+
+  <!-- Stats mini -->
+  <div class="mx-6 mt-4 p-4 bg-white/60 rounded-2xl border border-primary-fixed/20">
+    <p class="text-[0.6rem] tracking-widest text-outline uppercase font-bold mb-3">Today's Focus</p>
+    <div class="flex justify-between items-end">
+      <div>
+        <span id="sidebar-sessions" class="text-2xl font-headline font-extrabold text-primary">0</span>
+        <span class="text-xs text-on-surface-variant ml-1">sessions</span>
+      </div>
+      <div class="flex gap-1">
+        <div class="w-2 h-6 bg-primary-fixed/40 rounded-full" id="bar1"></div>
+        <div class="w-2 h-8 bg-primary-fixed/60 rounded-full" id="bar2"></div>
+        <div class="w-2 h-5 bg-primary-fixed/40 rounded-full" id="bar3"></div>
+        <div class="w-2 h-10 bg-primary/80 rounded-full" id="bar4"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Task Button -->
+  <div class="mt-auto px-8">
+    <button id="new-task-btn"
+      class="w-full py-4 bg-gradient-to-r from-primary to-primary-container text-on-primary rounded-full font-headline font-bold shadow-lg flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 transition-transform no-drag">
+      <span class="material-symbols-outlined">add</span>
+      New Task
+    </button>
+  </div>
+</aside>
+
+<!-- ═══════════════════════════════════════════ MAIN ═══════════════════════════════════════════════ -->
+<main class="flex-1 flex flex-col h-screen overflow-y-auto relative">
+
+  <!-- Top App Bar (drag region) -->
+  <header class="w-full h-16 flex items-center bg-[#fef4f5] justify-between px-12 shrink-0 z-10 drag-region">
+    <div class="flex items-center gap-8 no-drag">
+      <h1 class="text-2xl font-bold text-[#973e50] tracking-tighter select-none">PurrFocus</h1>
+      <nav class="hidden md:flex gap-6">
+        <a id="tab-focus" class="font-headline text-sm tracking-widest uppercase text-[#973e50] font-bold border-b-2 border-[#973e50] pb-1 cursor-pointer no-drag">Focus</a>
+        <a id="tab-tasks" class="font-headline text-sm tracking-widest uppercase text-[#b3abac] hover:text-[#973e50] transition-all cursor-pointer no-drag">Tasks</a>
+        <a id="tab-stats" class="font-headline text-sm tracking-widest uppercase text-[#b3abac] hover:text-[#973e50] transition-all cursor-pointer no-drag">Stats</a>
+        <a id="tab-meow" class="font-headline text-sm tracking-widest uppercase text-[#b3abac] hover:text-[#973e50] transition-all cursor-pointer no-drag">Meow-ditation</a>
+      </nav>
+    </div>
+    <!-- Window controls -->
+    <div class="flex items-center gap-2 no-drag">
+      <button id="btn-minimize" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#f0e6e7] transition-all text-outline">
+        <span class="material-symbols-outlined text-base">remove</span>
+      </button>
+      <button id="btn-maximize" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#f0e6e7] transition-all text-outline">
+        <span class="material-symbols-outlined text-base">crop_square</span>
+      </button>
+      <button id="btn-close" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-red-100 hover:text-error transition-all text-outline">
+        <span class="material-symbols-outlined text-base">close</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ─── Dashboard Canvas ─── -->
+  <div class="p-8 xl:p-12 grid grid-cols-12 gap-8 max-w-[1400px] mx-auto w-full">
+
+    <!-- Left Column -->
+    <div class="col-span-12 lg:col-span-7 flex flex-col gap-8">
+
+      <!-- Focus Timer Section -->
+      <section class="timer-container relative bg-surface-container-lowest rounded-xl p-10 xl:p-12 flex flex-col items-center justify-center shadow-[0_10px_40px_rgba(151,62,80,0.06)] overflow-visible">
+
+        <!-- Mode badge -->
+        <div class="flex items-center gap-3 mb-6">
+          <span id="mode-badge"
+            class="mode-badge-pulse px-4 py-1.5 rounded-full text-[0.65rem] tracking-[0.2em] text-on-primary font-bold uppercase bg-primary shadow-sm">
+            Focus Session
+          </span>
+          <!-- Timer duration selector -->
+          <div class="flex gap-2 no-drag flex-wrap justify-center items-center">
+            <button data-duration="25" class="duration-btn px-3 py-1 rounded-full text-xs font-bold bg-primary text-on-primary shadow transition-all">25m</button>
+            <button data-duration="50" class="duration-btn px-3 py-1 rounded-full text-xs font-bold bg-surface-container text-on-surface-variant hover:bg-primary hover:text-on-primary transition-all">50m</button>
+            <button data-duration="5"  class="duration-btn px-3 py-1 rounded-full text-xs font-bold bg-surface-container text-on-surface-variant hover:bg-primary hover:text-on-primary transition-all">5m</button>
+            <div class="flex items-center gap-1 bg-surface-container rounded-full px-2.5 py-1">
+              <input id="custom-duration" type="number" min="1" max="999" placeholder="dk"
+                class="w-10 bg-transparent text-xs font-bold text-on-surface outline-none text-center placeholder:text-outline/50"/>
+              <button id="custom-duration-btn" class="text-xs font-bold text-primary hover:text-primary-dim transition-colors">OK</button>
+            </div>
+          </div>
+        </div>
+
+        <h2 id="timer-headline" class="font-headline text-3xl font-extrabold text-on-surface tracking-tight mb-8">Stay Paws-itive!</h2>
+
+        <!-- Circular Timer -->
+        <div class="relative w-64 h-64 xl:w-72 xl:h-72 flex items-center justify-center">
+          <svg class="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 288 288">
+            <circle class="text-surface-variant" cx="144" cy="144" fill="transparent" r="126"
+              stroke="currentColor" stroke-width="8"/>
+            <circle id="progress-ring" class="text-primary transition-all duration-1000"
+              cx="144" cy="144" fill="transparent" r="126"
+              stroke="currentColor"
+              stroke-dasharray="792"
+              stroke-dashoffset="0"
+              stroke-linecap="round" stroke-width="12"/>
+          </svg>
+          <div class="flex flex-col items-center z-10">
+            <span id="timer-display" class="text-[5rem] xl:text-[5.5rem] font-headline font-light leading-none text-on-surface select-none">25:00</span>
+            <span id="timer-status" class="text-xs text-on-surface-variant mt-1 font-medium opacity-0 transition-opacity">paused</span>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="mt-10 flex gap-4 items-center no-drag">
+          <button id="start-btn"
+            class="px-10 py-4 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-full font-headline font-bold text-lg shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-3">
+            <span id="start-icon" class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">play_arrow</span>
+            <span id="start-label">Start Focus</span>
+          </button>
+          <button id="reset-btn"
+            class="w-16 h-16 bg-secondary-container text-on-secondary-container rounded-full flex items-center justify-center hover:bg-surface-container-highest hover:scale-105 active:scale-95 transition-all">
+            <span class="material-symbols-outlined">refresh</span>
+          </button>
+          <button id="skip-btn"
+            class="w-12 h-12 bg-surface-container text-on-surface-variant rounded-full flex items-center justify-center hover:bg-surface-container-high hover:scale-105 active:scale-95 transition-all" title="Skip session">
+            <span class="material-symbols-outlined text-sm">skip_next</span>
+          </button>
+        </div>
+
+        <!-- Session dots -->
+        <div class="flex gap-2 mt-6" id="session-dots">
+          <div class="w-2.5 h-2.5 rounded-full bg-primary opacity-30 session-dot"></div>
+          <div class="w-2.5 h-2.5 rounded-full bg-primary opacity-30 session-dot"></div>
+          <div class="w-2.5 h-2.5 rounded-full bg-primary opacity-30 session-dot"></div>
+          <div class="w-2.5 h-2.5 rounded-full bg-primary opacity-30 session-dot"></div>
+        </div>
+        <p class="text-[0.65rem] text-outline mt-1.5 tracking-wider">Every 4th session = long break 🐾</p>
+      </section>
+
+      <!-- Stats Bento Grid -->
+      <div class="grid grid-cols-2 gap-6">
+        <div class="bg-surface-container-low p-8 rounded-xl flex flex-col justify-between hover:shadow-md transition-shadow">
+          <div class="flex items-center justify-between mb-4">
+            <span class="font-label text-[0.6875rem] tracking-widest text-outline uppercase font-bold">Hours Focused</span>
+            <span class="material-symbols-outlined text-primary">schedule</span>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span id="stat-hours" class="text-4xl font-headline font-extrabold text-on-surface">0.0</span>
+            <span class="text-on-surface-variant font-medium">hrs</span>
+          </div>
+          <p id="stat-hours-sub" class="text-xs text-primary font-medium mt-2">Keep going! 🐾</p>
+        </div>
+        <div class="bg-surface-container p-8 rounded-xl flex flex-col justify-between hover:shadow-md transition-shadow">
+          <div class="flex items-center justify-between mb-4">
+            <span class="font-label text-[0.6875rem] tracking-widest text-outline uppercase font-bold">Tasks Done</span>
+            <span class="material-symbols-outlined text-primary">done_all</span>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span id="stat-tasks" class="text-4xl font-headline font-extrabold text-on-surface">0</span>
+            <span class="text-on-surface-variant font-medium">tasks</span>
+          </div>
+          <p id="stat-tasks-goal" class="text-xs text-on-surface-variant mt-2">Daily Goal: 20</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Task List -->
+    <div class="col-span-12 lg:col-span-5">
+      <section class="bg-surface-container-low rounded-xl p-8 h-full flex flex-col shadow-[0_10px_40px_rgba(151,62,80,0.02)] min-h-[400px]">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="font-headline text-2xl font-bold text-on-surface">Today's Missions</h3>
+          <span id="active-count" class="px-3 py-1 bg-primary-container/20 text-primary text-[0.6875rem] font-bold rounded-full uppercase tracking-tighter">0 Active</span>
+        </div>
+
+        <!-- Add task input -->
+        <div class="relative mb-6">
+          <input id="task-input"
+            class="w-full bg-surface-container-lowest border-none rounded-md py-4 pl-6 pr-14 focus:ring-2 focus:ring-primary-fixed outline-none text-on-surface placeholder:text-outline/50 font-body transition-all"
+            placeholder="Add a new paw-some task..." type="text"/>
+          <button id="add-task-btn"
+            class="absolute right-2 top-2 w-10 h-10 bg-primary text-on-primary rounded-md flex items-center justify-center hover:bg-primary-dim active:scale-90 transition-all no-drag">
+            <span class="material-symbols-outlined">add</span>
+          </button>
+        </div>
+
+        <!-- Task List -->
+        <div id="task-list" class="flex flex-col gap-3 overflow-y-auto custom-scrollbar flex-1 pr-1 max-h-[380px]">
+          <!-- Tasks injected by JS -->
+        </div>
+
+        <!-- Empty state -->
+        <div id="empty-state" class="hidden flex-col items-center justify-center py-8 text-center">
+          <span class="material-symbols-outlined text-5xl text-primary-fixed mb-3">pets</span>
+          <p class="text-on-surface-variant text-sm">No missions yet!<br>Add your first paw-some task 🐾</p>
+        </div>
+
+        <!-- Purr-tip -->
+        <div class="mt-auto pt-4">
+          <div id="purr-tip" class="p-5 bg-primary/5 rounded-lg border border-primary/10">
+            <div class="flex gap-3 items-start">
+              <span class="material-symbols-outlined text-primary text-xl mt-0.5">lightbulb</span>
+              <p class="text-sm text-on-secondary-fixed-variant leading-relaxed">
+                <strong class="block mb-1">Purr-tip:</strong>
+                <span id="tip-text">Break big tasks into small "paw-sized" bites for maximum focus!</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  </div><!-- /grid -->
+
+  <!-- CALENDAR PAGE -->
+  <div id="page-calendar" class="page-panel flex-col p-8 xl:p-12 gap-8 overflow-y-auto">
+    <div class="grid grid-cols-12 gap-8 max-w-[1400px] mx-auto w-full">
+      <div class="col-span-12 lg:col-span-8">
+        <div class="bg-surface-container-lowest rounded-xl shadow-[0_10px_40px_rgba(151,62,80,0.06)] p-8">
+          <div class="flex items-center justify-between mb-8">
+            <h2 id="cal-title" class="font-headline text-3xl font-extrabold text-on-surface"></h2>
+            <div class="flex gap-2 no-drag">
+              <button id="cal-prev" class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center hover:bg-surface-container-high transition-all"><span class="material-symbols-outlined text-base text-outline">chevron_left</span></button>
+              <button id="cal-today" class="px-4 py-1.5 rounded-full bg-primary text-on-primary text-xs font-bold hover:bg-primary-dim transition-all">Bugün</button>
+              <button id="cal-next" class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center hover:bg-surface-container-high transition-all"><span class="material-symbols-outlined text-base text-outline">chevron_right</span></button>
+            </div>
+          </div>
+          <div class="grid grid-cols-7 mb-2">
+            <div class="text-center text-[0.7rem] font-bold text-outline uppercase tracking-wider py-2">Paz</div>
+            <div class="text-center text-[0.7rem] font-bold text-outline uppercase tracking-wider py-2">Pts</div>
+            <div class="text-center text-[0.7rem] font-bold text-outline uppercase tracking-wider py-2">Sal</div>
+            <div class="text-center text-[0.7rem] font-bold text-outline uppercase tracking-wider py-2">Car</div>
+            <div class="text-center text-[0.7rem] font-bold text-outline uppercase tracking-wider py-2">Per</div>
+            <div class="text-center text-[0.7rem] font-bold text-outline uppercase tracking-wider py-2">Cum</div>
+            <div class="text-center text-[0.7rem] font-bold text-outline uppercase tracking-wider py-2">Cts</div>
+          </div>
+          <div id="cal-grid" class="grid grid-cols-7 gap-1"></div>
+        </div>
+      </div>
+      <div class="col-span-12 lg:col-span-4 flex flex-col gap-6">
+        <div class="bg-surface-container-low rounded-xl p-6">
+          <h3 id="cal-selected-label" class="font-headline text-lg font-bold text-on-surface mb-4">Bugün</h3>
+          <div id="cal-events-list" class="flex flex-col gap-2 min-h-[80px]"></div>
+        </div>
+        <div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm">
+          <h4 class="font-headline font-bold text-on-surface mb-4 text-sm">Etkinlik Ekle</h4>
+          <input id="cal-event-input" type="text" placeholder="Etkinlik adi..."
+            class="w-full bg-surface-container border-none rounded-lg py-3 px-4 text-sm text-on-surface placeholder:text-outline/50 focus:ring-2 focus:ring-primary-fixed outline-none mb-3 font-body"/>
+          <div class="flex gap-2 mb-3">
+            <input id="cal-event-time-start" type="time" value="09:00"
+              class="flex-1 bg-surface-container border-none rounded-lg py-2 px-3 text-sm text-on-surface focus:ring-2 focus:ring-primary-fixed outline-none font-body"/>
+            <span class="text-outline self-center">-</span>
+            <input id="cal-event-time-end" type="time" value="10:00"
+              class="flex-1 bg-surface-container border-none rounded-lg py-2 px-3 text-sm text-on-surface focus:ring-2 focus:ring-primary-fixed outline-none font-body"/>
+          </div>
+          <button id="cal-add-event-btn" class="w-full py-3 bg-gradient-to-r from-primary to-primary-container text-on-primary rounded-full font-headline font-bold text-sm hover:scale-[1.02] active:scale-95 transition-transform no-drag">+ Ekle</button>
+        </div>
+        <div class="bg-primary/5 rounded-xl p-5 border border-primary/10">
+          <span class="text-2xl text-primary opacity-40 font-serif leading-none">&ldquo;</span>
+          <p id="cal-quote" class="text-sm text-on-secondary-fixed-variant leading-relaxed italic mt-1"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- Floating paw decoration -->
+<div class="fixed bottom-12 right-12 pointer-events-none paw-float">
+  <span class="material-symbols-outlined text-[6rem] text-primary opacity-[0.07]"
+    style="font-variation-settings:'FILL' 1;">pets</span>
+</div>
+
+<!-- QUOTES BANNER -->
+<div id="quotes-banner" class="fixed bottom-0 left-72 right-0 z-40 pointer-events-none pb-4 px-12">
+  <div class="max-w-[860px] mx-auto">
+    <div class="bg-white/85 backdrop-blur-md border border-primary-fixed/30 rounded-2xl px-6 py-4 shadow-lg flex items-start gap-4">
+      <span class="text-3xl text-primary opacity-50 font-serif leading-none mt-0.5 shrink-0">&ldquo;</span>
+      <div class="flex-1 min-w-0">
+        <p id="quote-text" class="text-sm text-on-secondary-fixed-variant leading-relaxed italic"></p>
+        <div class="flex gap-1.5 mt-2">
+          <span id="quote-dot-0" class="w-1.5 h-1.5 rounded-full bg-primary transition-all"></span>
+          <span id="quote-dot-1" class="w-1.5 h-1.5 rounded-full bg-primary-fixed/40 transition-all"></span>
+          <span id="quote-dot-2" class="w-1.5 h-1.5 rounded-full bg-primary-fixed/40 transition-all"></span>
+          <span id="quote-dot-3" class="w-1.5 h-1.5 rounded-full bg-primary-fixed/40 transition-all"></span>
+          <span id="quote-dot-4" class="w-1.5 h-1.5 rounded-full bg-primary-fixed/40 transition-all"></span>
+        </div>
+      </div>
+      <button id="quote-close" class="shrink-0 w-6 h-6 rounded-full bg-surface-container flex items-center justify-center text-outline hover:bg-surface-container-high transition-all pointer-events-auto no-drag">
+        <span class="material-symbols-outlined text-xs">close</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ SETTINGS MODAL ════════════════════════ -->
+<div id="settings-modal" class="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+  <div class="bg-white rounded-2xl p-8 w-[380px] shadow-2xl">
+    <div class="flex items-center justify-between mb-6">
+      <h3 class="font-headline text-xl font-bold text-on-surface">Settings</h3>
+      <button id="close-settings" class="w-8 h-8 rounded-full hover:bg-surface-container flex items-center justify-center text-outline">
+        <span class="material-symbols-outlined text-base">close</span>
+      </button>
+    </div>
+    <div class="flex flex-col gap-4">
+      <div>
+        <label class="text-xs font-bold text-outline uppercase tracking-wider">Focus Duration (min)</label>
+        <input id="setting-focus" type="number" min="1" max="120" value="25"
+          class="mt-2 w-full border border-outline-variant rounded-xl px-4 py-3 font-body text-on-surface focus:ring-2 focus:ring-primary-fixed outline-none"/>
+      </div>
+      <div>
+        <label class="text-xs font-bold text-outline uppercase tracking-wider">Short Break (min)</label>
+        <input id="setting-short" type="number" min="1" max="30" value="5"
+          class="mt-2 w-full border border-outline-variant rounded-xl px-4 py-3 font-body text-on-surface focus:ring-2 focus:ring-primary-fixed outline-none"/>
+      </div>
+      <div>
+        <label class="text-xs font-bold text-outline uppercase tracking-wider">Long Break (min)</label>
+        <input id="setting-long" type="number" min="1" max="60" value="15"
+          class="mt-2 w-full border border-outline-variant rounded-xl px-4 py-3 font-body text-on-surface focus:ring-2 focus:ring-primary-fixed outline-none"/>
+      </div>
+      <button id="save-settings"
+        class="mt-2 py-3 bg-gradient-to-r from-primary to-primary-container text-on-primary rounded-full font-headline font-bold hover:scale-[1.02] active:scale-95 transition-transform">
+        Save Settings 🐾
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ NOTIFICATION TOAST ════════════════════════ -->
+<div id="toast" class="fixed top-6 right-6 z-[9999] translate-x-[200%] transition-transform duration-500">
+  <div class="bg-white rounded-2xl shadow-2xl border border-primary-fixed/30 p-5 w-72 flex items-start gap-4">
+    <span class="text-3xl">🐾</span>
+    <div>
+      <p id="toast-title" class="font-headline font-bold text-on-surface text-sm"></p>
+      <p id="toast-msg" class="text-xs text-on-surface-variant mt-0.5 leading-relaxed"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════
+// ELECTRON IPC (window controls)
+// ══════════════════════════════════════════════════════════════════
+const { ipcRenderer } = require('electron');
+document.getElementById('btn-minimize').addEventListener('click', () => ipcRenderer.send('window-minimize'));
+document.getElementById('btn-maximize').addEventListener('click', () => ipcRenderer.send('window-maximize'));
+document.getElementById('btn-close').addEventListener('click', () => ipcRenderer.send('window-close'));
+
+// ══════════════════════════════════════════════════════════════════
+// DATA & STATE
+// ══════════════════════════════════════════════════════════════════
+const TIPS = [
+  'Break big tasks into small "paw-sized" bites for maximum focus!',
+  'A focused cat always accomplishes more than a distracted one. 🐱',
+  'Short breaks recharge your purr-formance. Don\'t skip them!',
+  'Celebrate every task you complete — you deserve a treat! 🐟',
+  'Three deep breaths between sessions keeps the stress away.',
+  'One task at a time. Even cats know this. 🐾',
+];
+
+let state = {
+  tasks: JSON.parse(localStorage.getItem('pf_tasks') || '[]'),
+  completedTasks: parseInt(localStorage.getItem('pf_done') || '0'),
+  focusedSeconds: parseInt(localStorage.getItem('pf_seconds') || '0'),
+  completedSessions: parseInt(localStorage.getItem('pf_sessions') || '0'),
+  settings: JSON.parse(localStorage.getItem('pf_settings') || JSON.stringify({ focus: 25, short: 5, long: 15 })),
+
+  // Timer runtime
+  mode: 'focus',          // 'focus' | 'short' | 'long'
+  running: false,
+  remainingSeconds: 0,
+  totalSeconds: 0,
+  intervalId: null,
+};
+
+// Init remaining
+state.remainingSeconds = state.settings.focus * 60;
+state.totalSeconds     = state.settings.focus * 60;
+
+// ══════════════════════════════════════════════════════════════════
+// PERSIST
+// ══════════════════════════════════════════════════════════════════
+function saveState() {
+  localStorage.setItem('pf_tasks',    JSON.stringify(state.tasks));
+  localStorage.setItem('pf_done',     state.completedTasks);
+  localStorage.setItem('pf_seconds',  state.focusedSeconds);
+  localStorage.setItem('pf_sessions', state.completedSessions);
+  localStorage.setItem('pf_settings', JSON.stringify(state.settings));
+}
+
+// ══════════════════════════════════════════════════════════════════
+// TIMER
+// ══════════════════════════════════════════════════════════════════
+const CIRCUMFERENCE = 2 * Math.PI * 126; // ≈ 792
+
+function formatTime(secs) {
+  const m = Math.floor(secs / 60).toString().padStart(2, '0');
+  const s = (secs % 60).toString().padStart(2, '0');
+  return `${m}:${s}`;
+}
+
+function updateTimerUI() {
+  document.getElementById('timer-display').textContent = formatTime(state.remainingSeconds);
+
+  const pct = state.remainingSeconds / state.totalSeconds;
+  const offset = CIRCUMFERENCE * (1 - pct);
+  document.getElementById('progress-ring').style.strokeDashoffset = offset;
+  document.title = `${formatTime(state.remainingSeconds)} — PurrFocus`;
+}
+
+function setMode(mode) {
+  state.mode = mode;
+  state.running = false;
+  clearInterval(state.intervalId);
+
+  const durations = { focus: state.settings.focus, short: state.settings.short, long: state.settings.long };
+  state.remainingSeconds = durations[mode] * 60;
+  state.totalSeconds     = durations[mode] * 60;
+
+  const badge = document.getElementById('mode-badge');
+  const headline = document.getElementById('timer-headline');
+  const startLabel = document.getElementById('start-label');
+
+  if (mode === 'focus') {
+    badge.textContent = 'Focus Session';
+    badge.className = 'mode-badge-pulse px-4 py-1.5 rounded-full text-[0.65rem] tracking-[0.2em] text-on-primary font-bold uppercase bg-primary shadow-sm';
+    headline.textContent = 'Stay Paws-itive!';
+    startLabel.textContent = 'Start Focus';
+    document.getElementById('progress-ring').style.stroke = '#973e50';
+  } else if (mode === 'short') {
+    badge.textContent = 'Short Break';
+    badge.className = 'mode-badge-pulse px-4 py-1.5 rounded-full text-[0.65rem] tracking-[0.2em] font-bold uppercase bg-tertiary text-on-tertiary shadow-sm';
+    headline.textContent = 'Stretch & Purr!';
+    startLabel.textContent = 'Start Break';
+    document.getElementById('progress-ring').style.stroke = '#65518a';
+  } else {
+    badge.textContent = 'Long Break — Meow-ditation';
+    badge.className = 'mode-badge-pulse px-4 py-1.5 rounded-full text-[0.65rem] tracking-[0.2em] font-bold uppercase bg-tertiary text-on-tertiary shadow-sm';
+    headline.textContent = 'Time to Nap~';
+    startLabel.textContent = 'Start Long Break';
+    document.getElementById('progress-ring').style.stroke = '#65518a';
+  }
+
+  setStartIcon('play_arrow');
+  document.getElementById('timer-status').style.opacity = '0';
+  updateTimerUI();
+}
+
+function setStartIcon(icon) {
+  const el = document.getElementById('start-icon');
+  el.textContent = icon;
+  el.style.fontVariationSettings = "'FILL' 1";
+}
+
+function startTimer() {
+  state.running = true;
+  setStartIcon('pause');
+  document.getElementById('start-label').textContent = (state.mode === 'focus') ? 'Pause' : 'Pause Break';
+  document.getElementById('timer-status').style.opacity = '1';
+  document.getElementById('timer-status').textContent = 'running…';
+  document.getElementById('timer-display').classList.add('timer-running');
+
+  state.intervalId = setInterval(() => {
+    state.remainingSeconds--;
+    if (state.mode === 'focus') {
+      state.focusedSeconds++;
+      updateStatsUI();
+    }
+    updateTimerUI();
+
+    if (state.remainingSeconds <= 0) {
+      onSessionComplete();
+    }
+  }, 1000);
+}
+
+function pauseTimer() {
+  state.running = false;
+  clearInterval(state.intervalId);
+  setStartIcon('play_arrow');
+  const isBreak = state.mode !== 'focus';
+  document.getElementById('start-label').textContent = isBreak ? 'Resume Break' : 'Resume Focus';
+  document.getElementById('timer-status').textContent = 'paused';
+  document.getElementById('timer-display').classList.remove('timer-running');
+}
+
+function onSessionComplete() {
+  clearInterval(state.intervalId);
+  state.running = false;
+  document.getElementById('timer-display').classList.remove('timer-running');
+
+  if (state.mode === 'focus') {
+    state.completedSessions++;
+    updateSessionDots();
+    updateSidebarSessions();
+    saveState();
+
+    if (state.completedSessions % 4 === 0) {
+      showToast('Long Break Time! 🎉', 'You crushed 4 focus sessions! Enjoy a long break.');
+      confettiBurst();
+      setMode('long');
+    } else {
+      showToast('Focus Session Done! 🐾', 'Great work! Take a short break.');
+      setMode('short');
+    }
+  } else {
+    showToast('Break Over! ⚡', 'Time to focus again. You\'ve got this!');
+    setMode('focus');
+  }
+  rotateTip();
+  saveState();
+}
+
+// ── Session dots ──────────────────────────────────────────────────
+function updateSessionDots() {
+  const dots = document.querySelectorAll('.session-dot');
+  const offset = state.completedSessions % 4;
+  dots.forEach((dot, i) => {
+    if (i < offset) {
+      dot.style.opacity = '1';
+      dot.style.backgroundColor = '#973e50';
+    } else {
+      dot.style.opacity = '0.3';
+      dot.style.backgroundColor = '';
+    }
+  });
+}
+
+// ── Duration buttons ──────────────────────────────────────────────
+document.querySelectorAll('.duration-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (state.running) pauseTimer();
+    const mins = parseInt(btn.dataset.duration);
+    state.remainingSeconds = mins * 60;
+    state.totalSeconds     = mins * 60;
+    document.querySelectorAll('.duration-btn').forEach(b => {
+      b.className = 'duration-btn px-3 py-1 rounded-full text-xs font-bold bg-surface-container text-on-surface-variant hover:bg-primary hover:text-on-primary transition-all';
+    });
+    btn.className = 'duration-btn px-3 py-1 rounded-full text-xs font-bold bg-primary text-on-primary shadow transition-all';
+    setStartIcon('play_arrow');
+    document.getElementById('start-label').textContent = 'Start Focus';
+    document.getElementById('timer-status').style.opacity = '0';
+    document.getElementById('timer-display').classList.remove('timer-running');
+    updateTimerUI();
+  });
+});
+
+// ── Main controls ─────────────────────────────────────────────────
+document.getElementById('start-btn').addEventListener('click', () => {
+  if (state.running) pauseTimer();
+  else startTimer();
+});
+
+document.getElementById('reset-btn').addEventListener('click', () => {
+  if (state.running) pauseTimer();
+  setMode(state.mode);
+});
+
+document.getElementById('skip-btn').addEventListener('click', () => {
+  if (state.running) pauseTimer();
+  if (state.mode === 'focus') setMode('short');
+  else setMode('focus');
+});
+
+// ══════════════════════════════════════════════════════════════════
+// STATS UI
+// ══════════════════════════════════════════════════════════════════
+function updateStatsUI() {
+  const hours = (state.focusedSeconds / 3600).toFixed(1);
+  document.getElementById('stat-hours').textContent = hours;
+  saveState();
+}
+
+function updateSidebarSessions() {
+  document.getElementById('sidebar-sessions').textContent = state.completedSessions;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// TASK MANAGEMENT
+// ══════════════════════════════════════════════════════════════════
+function renderTasks() {
+  const list = document.getElementById('task-list');
+  const empty = document.getElementById('empty-state');
+  list.innerHTML = '';
+
+  if (state.tasks.length === 0) {
+    empty.classList.remove('hidden');
+    empty.classList.add('flex');
+  } else {
+    empty.classList.add('hidden');
+    empty.classList.remove('flex');
+  }
+
+  state.tasks.forEach((task, i) => {
+    const div = document.createElement('div');
+    div.className = 'task-slide-in group flex items-center justify-between p-4 rounded-md transition-all shadow-sm cursor-pointer ' +
+      (task.done ? 'bg-surface-container-lowest/50' : 'bg-surface-container-lowest hover:bg-white hover:shadow-md');
+
+    div.innerHTML = `
+      <div class="flex items-center gap-4 flex-1 min-w-0">
+        <button class="paw-toggle flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-full border-2 transition-all
+          ${task.done ? 'border-primary bg-primary-container/20' : 'border-primary-fixed text-transparent hover:border-primary'}"
+          data-idx="${i}">
+          <span class="material-symbols-outlined text-sm ${task.done ? 'text-primary' : ''}"
+            style="font-variation-settings:'FILL' ${task.done ? 1 : 0}">pets</span>
+        </button>
+        <span class="font-medium text-sm truncate ${task.done ? 'text-on-surface-variant line-through opacity-50' : 'text-on-surface'}"
+          title="${escapeHtml(task.text)}">${escapeHtml(task.text)}</span>
+      </div>
+      <button class="delete-btn flex-shrink-0 ml-2 opacity-0 group-hover:opacity-100 text-outline-variant hover:text-error transition-all" data-idx="${i}">
+        <span class="material-symbols-outlined text-xl">delete</span>
+      </button>
+    `;
+    list.appendChild(div);
+  });
+
+  // Paw toggle
+  list.querySelectorAll('.paw-toggle').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const idx = parseInt(btn.dataset.idx);
+      state.tasks[idx].done = !state.tasks[idx].done;
+      if (state.tasks[idx].done) {
+        state.completedTasks++;
+        confettiBurstAt(btn);
+        showToast('Task Complete! 🐾', `"${state.tasks[idx].text}" — purrfect!`);
+      } else {
+        state.completedTasks = Math.max(0, state.completedTasks - 1);
+      }
+      updateTaskStats();
+      saveState();
+      renderTasks();
+    });
+  });
+
+  // Delete
+  list.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const idx = parseInt(btn.dataset.idx);
+      if (state.tasks[idx].done) state.completedTasks = Math.max(0, state.completedTasks - 1);
+      state.tasks.splice(idx, 1);
+      updateTaskStats();
+      saveState();
+      renderTasks();
+    });
+  });
+
+  updateTaskStats();
+}
+
+function updateTaskStats() {
+  const active = state.tasks.filter(t => !t.done).length;
+  const done   = state.tasks.filter(t => t.done).length;
+  document.getElementById('active-count').textContent = `${active} Active`;
+  document.getElementById('stat-tasks').textContent = done;
+}
+
+function addTask(text) {
+  text = text.trim();
+  if (!text) return;
+  state.tasks.unshift({ text, done: false, id: Date.now() });
+  saveState();
+  renderTasks();
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Input wiring ──────────────────────────────────────────────────
+const taskInput = document.getElementById('task-input');
+
+document.getElementById('add-task-btn').addEventListener('click', () => {
+  addTask(taskInput.value);
+  taskInput.value = '';
+  taskInput.focus();
+});
+
+taskInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    addTask(taskInput.value);
+    taskInput.value = '';
+  }
+});
+
+document.getElementById('new-task-btn').addEventListener('click', () => {
+  taskInput.focus();
+  taskInput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+});
+
+// ══════════════════════════════════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════════════════════════════════
+document.getElementById('nav-settings').addEventListener('click', (e) => {
+  e.preventDefault();
+  document.getElementById('settings-modal').classList.remove('hidden');
+  document.getElementById('settings-modal').classList.add('flex');
+  document.getElementById('setting-focus').value = state.settings.focus;
+  document.getElementById('setting-short').value = state.settings.short;
+  document.getElementById('setting-long').value  = state.settings.long;
+});
+
+document.getElementById('close-settings').addEventListener('click', () => {
+  document.getElementById('settings-modal').classList.add('hidden');
+  document.getElementById('settings-modal').classList.remove('flex');
+});
+
+document.getElementById('settings-modal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('settings-modal')) {
+    document.getElementById('settings-modal').classList.add('hidden');
+    document.getElementById('settings-modal').classList.remove('flex');
+  }
+});
+
+document.getElementById('save-settings').addEventListener('click', () => {
+  state.settings.focus = Math.max(1, parseInt(document.getElementById('setting-focus').value) || 25);
+  state.settings.short = Math.max(1, parseInt(document.getElementById('setting-short').value) || 5);
+  state.settings.long  = Math.max(1, parseInt(document.getElementById('setting-long').value) || 15);
+  saveState();
+  if (state.running) pauseTimer();
+  setMode(state.mode);
+  document.getElementById('settings-modal').classList.add('hidden');
+  document.getElementById('settings-modal').classList.remove('flex');
+  showToast('Settings Saved! 🐾', 'Your timer has been updated.');
+});
+
+// ══════════════════════════════════════════════════════════════════
+// TOAST NOTIFICATION
+// ══════════════════════════════════════════════════════════════════
+let toastTimeout;
+function showToast(title, msg) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toast-title').textContent = title;
+  document.getElementById('toast-msg').textContent   = msg;
+  toast.style.transform = 'translateX(0)';
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => {
+    toast.style.transform = 'translateX(200%)';
+  }, 4000);
+}
+
+// ══════════════════════════════════════════════════════════════════
+// CONFETTI
+// ══════════════════════════════════════════════════════════════════
+const CONFETTI_COLORS = ['#973e50','#fe90a3','#ffd1dc','#65518a','#c8b1f0','#ffb3c6'];
+
+function spawnConfettiAt(x, y, count = 8) {
+  for (let i = 0; i < count; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'confetti-dot';
+    dot.style.left = (x + (Math.random() - 0.5) * 60) + 'px';
+    dot.style.top  = y + 'px';
+    dot.style.backgroundColor = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+    dot.style.animationDelay  = (Math.random() * 0.3) + 's';
+    document.body.appendChild(dot);
+    dot.addEventListener('animationend', () => dot.remove());
+  }
+}
+
+function confettiBurstAt(el) {
+  const rect = el.getBoundingClientRect();
+  spawnConfettiAt(rect.left + rect.width / 2, rect.top + rect.height / 2, 10);
+}
+
+function confettiBurst() {
+  for (let i = 0; i < 5; i++) {
+    setTimeout(() => {
+      spawnConfettiAt(
+        Math.random() * window.innerWidth,
+        Math.random() * window.innerHeight * 0.5,
+        12
+      );
+    }, i * 150);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// TIP ROTATION
+// ══════════════════════════════════════════════════════════════════
+let tipIndex = 0;
+function rotateTip() {
+  tipIndex = (tipIndex + 1) % TIPS.length;
+  document.getElementById('tip-text').textContent = TIPS[tipIndex];
+}
+// Rotate tip every 5 minutes
+setInterval(rotateTip, 1000 * 60 * 5);
+
+// ══════════════════════════════════════════════════════════════════
+// KEYBOARD SHORTCUTS
+// ══════════════════════════════════════════════════════════════════
+document.addEventListener('keydown', (e) => {
+  if (document.activeElement === taskInput) return;
+  if (e.code === 'Space') {
+    e.preventDefault();
+    if (state.running) pauseTimer();
+    else startTimer();
+  }
+  if (e.code === 'KeyR' && !e.ctrlKey) {
+    if (state.running) pauseTimer();
+    setMode(state.mode);
+  }
+});
+
+// ══════════════════════════════════════════════════════════════════
+// CUSTOM TIMER DURATION
+// ══════════════════════════════════════════════════════════════════
+function applyCustomDuration() {
+  const val = parseInt(document.getElementById('custom-duration').value);
+  if (!val || val < 1) return;
+  if (state.running) pauseTimer();
+  state.remainingSeconds = val * 60;
+  state.totalSeconds     = val * 60;
+  document.querySelectorAll('.duration-btn').forEach(b => {
+    b.className = 'duration-btn px-3 py-1 rounded-full text-xs font-bold bg-surface-container text-on-surface-variant hover:bg-primary hover:text-on-primary transition-all';
+  });
+  setStartIcon('play_arrow');
+  document.getElementById('start-label').textContent = 'Start Focus';
+  document.getElementById('timer-status').style.opacity = '0';
+  document.getElementById('timer-display').classList.remove('timer-running');
+  document.getElementById('custom-duration').value = '';
+  updateTimerUI();
+  showToast('Sure Ayarlandi! timing', val + ' dakikalik ozel sayac hazir.');
+}
+document.getElementById('custom-duration-btn').addEventListener('click', applyCustomDuration);
+document.getElementById('custom-duration').addEventListener('keydown', e => { if (e.key === 'Enter') applyCustomDuration(); });
+
+// ══════════════════════════════════════════════════════════════════
+// MOTIVATIONAL QUOTES
+// ══════════════════════════════════════════════════════════════════
+const QUOTES = [
+  "Canakkale Bogazi kusatildigi zaman Ingilizler gemileri ilk getirdiginde Mustafa Kemal'e haber geliyor, 'Pasam, Ingilizler gemileri kapiya dayadi, n'apicaz?' Orada bir cumle kuruyor: 'Geldikleri gibi giderler...'",
+  "Bak, sevgi oyle olmuyormus iste! Sevgi sozlerde olmaz guzelim. Sevgi sadakat ister. Once sadakatli olacaksin. Once ait olacaksin birine. Birine ait olursan eger, zaten kazanirsin.",
+  "Valla bizde oyle 'Askim, sevgilim, canim, cicim' denmez. Ben de denirse 'Hatunum' denir, 'Omurluk' denir!",
+  "Su an benim basim one egilmedi, benim basim tamamen koptu resmen.",
+  "Serhan'in kadinlara karsi tavırlarını bilemem. O beni pek de alakadar etmez. Cunku ben bir kadin degilim."
+];
+let quoteIndex = 0;
+
+function showQuote(idx) {
+  quoteIndex = ((idx % QUOTES.length) + QUOTES.length) % QUOTES.length;
+  const el = document.getElementById('quote-text');
+  el.classList.remove('quote-fade');
+  void el.offsetWidth;
+  el.textContent = QUOTES[quoteIndex];
+  el.classList.add('quote-fade');
+  const calQ = document.getElementById('cal-quote');
+  if (calQ) calQ.textContent = QUOTES[quoteIndex];
+  for (let i = 0; i < QUOTES.length; i++) {
+    const dot = document.getElementById('quote-dot-' + i);
+    if (dot) dot.className = 'w-1.5 h-1.5 rounded-full transition-all ' + (i === quoteIndex ? 'bg-primary' : 'bg-primary-fixed/40');
+  }
+}
+
+showQuote(0);
+setInterval(() => showQuote(quoteIndex + 1), 30000);
+
+document.getElementById('quote-close').addEventListener('click', () => {
+  document.getElementById('quotes-banner').style.display = 'none';
+});
+
+// ══════════════════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════════════════
+const NAV_ACTIVE   = 'bg-[#f0e6e7] text-[#973e50] font-semibold rounded-full mx-4 px-6 py-3 flex items-center gap-3 cursor-pointer translate-x-1 no-drag';
+const NAV_INACTIVE = 'text-[#322d2e] opacity-70 mx-4 px-6 py-3 flex items-center gap-3 hover:bg-[#f0e6e7] rounded-full cursor-pointer no-drag';
+
+function showPage(page) {
+  const dashGrid  = document.querySelector('div.p-8');
+  const calPage   = document.getElementById('page-calendar');
+  ['nav-dashboard','nav-calendar','nav-playtime','nav-profile'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.className = NAV_INACTIVE;
+  });
+  if (page === 'calendar') {
+    if (dashGrid) dashGrid.style.display = 'none';
+    calPage.classList.add('active');
+    document.getElementById('nav-calendar').className = NAV_ACTIVE;
+    renderCalendar();
+  } else {
+    if (dashGrid) dashGrid.style.display = '';
+    calPage.classList.remove('active');
+    document.getElementById('nav-dashboard').className = NAV_ACTIVE;
+  }
+}
+
+document.getElementById('nav-dashboard').addEventListener('click', e => { e.preventDefault(); showPage('dashboard'); });
+document.getElementById('nav-calendar').addEventListener('click', e => { e.preventDefault(); showPage('calendar'); });
+document.getElementById('nav-playtime').addEventListener('click', e => { e.preventDefault(); showPage('dashboard'); });
+document.getElementById('nav-profile').addEventListener('click', e => { e.preventDefault(); showPage('dashboard'); });
+
+// ══════════════════════════════════════════════════════════════════
+// CALENDAR ENGINE
+// ══════════════════════════════════════════════════════════════════
+const MONTHS_TR = ['Ocak','Subat','Mart','Nisan','Mayis','Haziran','Temmuz','Agustos','Eylul','Ekim','Kasim','Aralik'];
+let calDate = new Date();
+let calSelectedDate = new Date();
+let calEvents = JSON.parse(localStorage.getItem('pf_cal_events') || '{}');
+
+function calDateKey(d) {
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function renderCalendar() {
+  const today  = new Date();
+  const year   = calDate.getFullYear();
+  const month  = calDate.getMonth();
+  document.getElementById('cal-title').textContent = MONTHS_TR[month] + ' ' + year;
+  const firstDay    = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const daysInPrev  = new Date(year, month, 0).getDate();
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+  for (let i = firstDay-1; i >= 0; i--) {
+    const wrap = document.createElement('div'); wrap.className='flex justify-center py-1';
+    wrap.innerHTML = '<div class="cal-day other-month">' + (daysInPrev-i) + '</div>';
+    grid.appendChild(wrap);
+  }
+  for (let day = 1; day <= daysInMonth; day++) {
+    const thisDate  = new Date(year, month, day);
+    const key       = calDateKey(thisDate);
+    const isToday   = today.getFullYear()===year && today.getMonth()===month && today.getDate()===day;
+    const isSelected= calSelectedDate.getFullYear()===year && calSelectedDate.getMonth()===month && calSelectedDate.getDate()===day;
+    const hasEv     = calEvents[key] && calEvents[key].length > 0;
+    let cls = 'cal-day' + (isToday?' today':'') + (hasEv?' has-event':'') + (isSelected&&!isToday?' selected-day':'');
+    const wrap = document.createElement('div'); wrap.className='flex justify-center py-1';
+    const cell = document.createElement('div'); cell.className=cls; cell.textContent=day;
+    cell.addEventListener('click', () => { calSelectedDate=new Date(year,month,day); renderCalendar(); });
+    wrap.appendChild(cell); grid.appendChild(wrap);
+  }
+  const cells = firstDay + daysInMonth;
+  const remaining = cells % 7 === 0 ? 0 : 7-(cells%7);
+  for (let i=1; i<=remaining; i++) {
+    const wrap=document.createElement('div'); wrap.className='flex justify-center py-1';
+    wrap.innerHTML='<div class="cal-day other-month">'+i+'</div>';
+    grid.appendChild(wrap);
+  }
+  renderCalEvents();
+}
+
+function renderCalEvents() {
+  const key    = calDateKey(calSelectedDate);
+  const events = calEvents[key] || [];
+  const today  = new Date();
+  const isToday= calSelectedDate.getFullYear()===today.getFullYear()&&calSelectedDate.getMonth()===today.getMonth()&&calSelectedDate.getDate()===today.getDate();
+  document.getElementById('cal-selected-label').textContent = isToday ? 'Bugun' : calSelectedDate.getDate()+' '+MONTHS_TR[calSelectedDate.getMonth()];
+  const list = document.getElementById('cal-events-list');
+  if (!events.length) { list.innerHTML='<p class="text-sm text-on-surface-variant opacity-60 text-center py-4">Bu gune ait etkinlik yok</p>'; return; }
+  list.innerHTML = events.map((ev,i) => '<div class="flex items-center gap-3 p-3 bg-surface-container rounded-xl group"><div class="w-1 h-10 bg-primary rounded-full shrink-0"></div><div class="flex-1 min-w-0"><p class="font-medium text-sm text-on-surface truncate">'+ev.name+'</p><p class="text-xs text-on-surface-variant">'+ev.start+' - '+ev.end+'</p></div><button class="del-ev opacity-0 group-hover:opacity-100 text-outline-variant hover:text-error transition-all" data-key="'+key+'" data-idx="'+i+'"><span class="material-symbols-outlined text-base">delete</span></button></div>').join('');
+  list.querySelectorAll('.del-ev').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const k=btn.dataset.key, idx=parseInt(btn.dataset.idx);
+      calEvents[k].splice(idx,1);
+      if(!calEvents[k].length) delete calEvents[k];
+      localStorage.setItem('pf_cal_events',JSON.stringify(calEvents));
+      renderCalendar();
+    });
+  });
+}
+
+document.getElementById('cal-prev').addEventListener('click',  () => { calDate.setMonth(calDate.getMonth()-1); renderCalendar(); });
+document.getElementById('cal-next').addEventListener('click',  () => { calDate.setMonth(calDate.getMonth()+1); renderCalendar(); });
+document.getElementById('cal-today').addEventListener('click', () => { calDate=new Date(); calSelectedDate=new Date(); renderCalendar(); });
+
+document.getElementById('cal-add-event-btn').addEventListener('click', () => {
+  const name  = document.getElementById('cal-event-input').value.trim();
+  const start = document.getElementById('cal-event-time-start').value;
+  const end   = document.getElementById('cal-event-time-end').value;
+  if (!name) return;
+  const key = calDateKey(calSelectedDate);
+  if (!calEvents[key]) calEvents[key] = [];
+  calEvents[key].push({name, start, end});
+  calEvents[key].sort((a,b) => a.start.localeCompare(b.start));
+  localStorage.setItem('pf_cal_events', JSON.stringify(calEvents));
+  document.getElementById('cal-event-input').value = '';
+  renderCalendar();
+  showToast('Etkinlik Eklendi! calendar', '"'+name+'" takvime eklendi.');
+});
+
+// ══════════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════════
+function init() {
+  setMode('focus');
+  renderTasks();
+  updateStatsUI();
+  updateSidebarSessions();
+  updateSessionDots();
+}
+
+init();
+</script>
+</body>
+</html>
